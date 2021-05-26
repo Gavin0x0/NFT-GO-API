@@ -5,7 +5,7 @@
  - mongodb「需要新建名为NFTGO的数据库」
 ## 安装依赖
 ```
-pip install -r requirements
+pip install -r requirements.txt
 ```
 ## 启动方式
 ```

@@ -28,7 +28,7 @@ class User(BaseModel):
     id: Optional[PyObjectId] = Field(alias='_id')
     name: str
     username: str
-    email: str
+    password: str
 
     class Config:
         arbitrary_types_allowed = True

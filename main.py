@@ -4,7 +4,7 @@ from models import db, User, Good
 
 app = FastAPI()
 
-#设置跨域允许
+# 设置跨域允许
 origins = [
     "http://localhost:8080",
     "https://632891553.xyz",
@@ -38,17 +38,29 @@ async def create_user(user: User):
     return {'user': user}
 
 
+@app.get('/login')
+async def login(username: str = "", password: str = ""):
+    success = False
+    exist = False
+    name = ""
+    for user in db.users.find({"username": username}):
+        exist = True
+    for user in db.users.find({"username": username, "password": password}):
+        success = True
+        name = User(**user).name
+    return {'success': success, "exist": exist,"name":name}
+
 @app.get('/getGood')
 async def get_good(g_id: str = "1"):
     good = ""
     for g in db.goods.find({"g_no": g_id}):
         good = Good(**g)
-    #goods.append(Good(*good))
+    # goods.append(Good(*good))
     return good
 
 
 @app.post('/createGood')
-async def create_user(good: Good):
+async def create_good(good: Good):
     if hasattr(good, 'id'):
         delattr(good, 'id')
     ret = db.goods.insert_one(good.dict(by_alias=True))
