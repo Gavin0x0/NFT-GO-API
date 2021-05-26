@@ -1,4 +1,5 @@
 # NFT-GO后端服务
+## 基于Vue3.0+Eelement-Plus+FastAPI+MongoDB的前后端分离的简易商城项目「后端部分」
 ## 运行环境
  - python 3.8.5
  - mongodb「需要新建名为NFTGO的数据库」
