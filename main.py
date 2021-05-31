@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from models import db, User, Good
+from models import db, User, Good,CartRecord
 
 app = FastAPI()
 
@@ -48,15 +48,96 @@ async def login(username: str = "", password: str = ""):
     for user in db.users.find({"username": username, "password": password}):
         success = True
         name = User(**user).name
-    return {'success': success, "exist": exist,"name":name}
+    return {'success': success, "exist": exist, "name": name}
+
 
 @app.get('/getGood')
-async def get_good(g_id: str = "1"):
+async def get_good(g_no: str = "1"):
     good = ""
-    for g in db.goods.find({"g_no": g_id}):
+    for g in db.goods.find({"g_no": g_no}):
         good = Good(**g)
     # goods.append(Good(*good))
     return good
+
+#查询购物车
+@app.get('/getCartGood')
+async def get_cart_good(page: int = 1, size: int = 1):
+    skip = size * (page - 1)
+    dataCount = db.cart.find().count()
+    goods = []
+    for g in db.cart.find().limit(size).skip(skip):
+        goods.append(CartRecord(**g))
+    # goods.append(Good(*good))
+    return {'data': goods, 'data_count': dataCount}
+
+#查询商品列表
+@app.get('/getGoodList')
+async def get_good_list(page: int = 1, size: int = 1):
+    skip = size * (page - 1)
+    dataCount = db.goods.find().count()
+    goodList = []
+    for g in db.goods.find({},{"_id":0,"g_no":1}).limit(size).skip(skip):
+        print(type(g))
+        print(g)
+        goodList.append(g["g_no"])
+    # goods.append(Good(*good))
+    return {'data': goodList, 'data_count': dataCount}
+
+
+@app.get('/addCart')
+async def add_cart(g_no: str = "1", num: int = 1):
+    #查找商品
+    good = ""
+    for g in db.goods.find({"g_no": g_no}):
+        good = Good(**g)
+    record = ""
+    for r in db.cart.find({"g_no": good.g_no}):
+        record = CartRecord(**r)
+    if record:
+        db.cart.update({"g_no":record.g_no},{"$set":{"num":record.num+num}})
+    else:
+        record = {}
+        record["g_name"] = good.g_name
+        record["g_no"] = good.g_no
+        record["price"] = good.price
+        record["num"] = num
+        print(record)
+        db.cart.insert_one(record)
+    # goods.append(Good(*good))
+    return {"success":True}
+
+@app.get('/updateCart')
+async def update_cart(g_no: str = "1", num: int = 1):
+    #查找商品
+    good = ""
+    for g in db.goods.find({"g_no": g_no}):
+        good = Good(**g)
+    record = ""
+    for r in db.cart.find({"g_no": good.g_no}):
+        record = CartRecord(**r)
+    if record:
+        db.cart.update({"g_no":record.g_no},{"$set":{"num":num}})
+    else:
+        record = {}
+        record["g_name"] = good.g_name
+        record["g_no"] = good.g_no
+        record["price"] = good.price
+        record["num"] = num
+        print(record)
+        db.cart.insert_one(record)
+    # goods.append(Good(*good))
+    return {"success":True}
+
+@app.get('/removeCart')
+async def remove_cart(g_no: str = "1"):
+    #查找记录
+    record = ""
+    for r in db.cart.find({"g_no": g_no}):
+        record = CartRecord(**r)
+    if record:
+        db.cart.delete_many({'g_no': g_no})
+    # goods.append(Good(*good))
+    return {"success":True}
 
 
 @app.post('/createGood')

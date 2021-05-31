@@ -26,6 +26,7 @@ class PyObjectId(ObjectId):
 
 class User(BaseModel):
     id: Optional[PyObjectId] = Field(alias='_id')
+    u_id: str
     name: str
     username: str
     password: str
@@ -44,6 +45,19 @@ class Good(BaseModel):
     g_des: str
     g_img_url: str
     price: float
+
+    class Config:
+        arbitrary_types_allowed = True
+        json_encoders = {
+            ObjectId: str
+        }
+
+class CartRecord(BaseModel):
+    id: Optional[PyObjectId] = Field(alias='_id')
+    g_name: str
+    g_no: str
+    price: float
+    num: int
 
     class Config:
         arbitrary_types_allowed = True
