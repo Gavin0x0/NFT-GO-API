@@ -123,7 +123,7 @@ async def update_cart(g_no: str = "1", num: int = 1):
         record["g_no"] = good.g_no
         record["price"] = good.price
         record["num"] = num
-        print(record)
+        #print(record)
         db.cart.insert_one(record)
     # goods.append(Good(*good))
     return {"success":True}
